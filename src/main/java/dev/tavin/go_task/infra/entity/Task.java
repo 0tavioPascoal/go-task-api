@@ -1,5 +1,6 @@
 package dev.tavin.go_task.infra.entity;
 
+import dev.tavin.go_task.infra.entity.enums.Status;
 import jakarta.persistence.*;
 
 import java.util.*;
@@ -27,7 +28,7 @@ public class Task {
     private User user;
 
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CommentModel> comments = new ArrayList<>();
+    private List<Comment> comments = new ArrayList<>();
 
 
 }

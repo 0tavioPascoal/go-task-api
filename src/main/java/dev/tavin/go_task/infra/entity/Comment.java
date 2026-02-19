@@ -7,7 +7,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "comment_table")
-public class CommentModel {
+public class Comment {
 
     @Id
     @GeneratedValue
