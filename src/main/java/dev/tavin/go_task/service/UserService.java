@@ -49,8 +49,14 @@ public class UserService {
         return new UserResponseDto(user.getEmail(), user.getUsername(), user.getId(), user.getCreatedAt(), user.getUpdatedAt());
     }
 
-    public void deleteUser(UUID id) {
-       userRepository.deleteById(id);
+    public void deleteUser() {
+       User user = (User)  Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal();
+
+        if (user == null) {
+            throw new BadCredentialsException("Bad credentials");
+        }
+
+        userRepository.delete(user);
     }
 
 }

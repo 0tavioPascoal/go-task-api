@@ -4,9 +4,9 @@ import dev.tavin.go_task.infra.dto.user.UserResponseDto;
 import dev.tavin.go_task.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/me")
@@ -21,5 +21,11 @@ public class UserController {
     @GetMapping
     public ResponseEntity<UserResponseDto> getCurrentUser() {
         return new ResponseEntity<>(userService.getCurrentUser(), HttpStatus.OK);
+   }
+
+   @DeleteMapping()
+    public ResponseEntity<Void> deleteCurrentUser() {
+        userService.deleteUser();
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
    }
 }
