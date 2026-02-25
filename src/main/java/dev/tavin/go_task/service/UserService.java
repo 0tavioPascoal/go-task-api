@@ -4,13 +4,13 @@ import dev.tavin.go_task.infra.dto.user.UserRequestDto;
 import dev.tavin.go_task.infra.dto.user.UserResponseDto;
 import dev.tavin.go_task.infra.entity.User;
 import dev.tavin.go_task.infra.repository.UserRepository;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
-import java.util.UUID;
+import java.util.Optional;
+
 
 @Service
 public class UserService {
@@ -39,11 +39,11 @@ public class UserService {
         return new UserResponseDto(saved.getEmail(), saved.getUsername(), saved.getId(), saved.getCreatedAt(), saved.getUpdatedAt());
     }
 
-    public UserResponseDto getCurrentUser() {
+    public UserResponseDto getUser() {
         User user = (User) Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal();
 
-        if (user == null) {
-            throw new BadCredentialsException("Bad credentials");
+        if(user == null) {
+            throw new RuntimeException("User not logged in");
         }
 
         return new UserResponseDto(user.getEmail(), user.getUsername(), user.getId(), user.getCreatedAt(), user.getUpdatedAt());
@@ -52,11 +52,34 @@ public class UserService {
     public void deleteUser() {
        User user = (User)  Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal();
 
-        if (user == null) {
-            throw new BadCredentialsException("Bad credentials");
-        }
+       if(user == null) {
+           throw new RuntimeException("User not logged in");
+       }
 
         userRepository.delete(user);
     }
+
+    public UserResponseDto updateUser(UserRequestDto req) {
+        User user = (User) Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal();
+
+        Optional.ofNullable(req.username())
+                .ifPresent(Objects.requireNonNull(user)::setUsername);
+
+        Optional.ofNullable(req.email())
+                .ifPresent(email -> {
+                    if (userRepository.findUserByEmail(email).isPresent()) {
+                        throw new IllegalArgumentException("Email already in use");
+                    }
+                    user.setEmail(email);
+                });
+
+        Optional.ofNullable(req.password())
+                .ifPresent(p -> user.setPassword(passwordEncoder.encode(p)));
+
+        userRepository.save(user);
+
+        return new UserResponseDto(user.getEmail(), user.getUsername(), user.getId(), user.getCreatedAt(), user.getUpdatedAt());
+    }
+
 
 }

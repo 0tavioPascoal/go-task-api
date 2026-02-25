@@ -34,6 +34,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginRequestDto req){
+        //TODO add cookie for token jwt
         return new ResponseEntity<>(authService.login(req), HttpStatus.OK);
     }
 }

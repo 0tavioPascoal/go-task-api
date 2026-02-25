@@ -16,4 +16,4 @@ spring:
 
 app:
   security:
-    jwt-secret:
+    jwt-secret: c9d0b67e54093f5dc2e60af7f94dbdf2
