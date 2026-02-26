@@ -61,8 +61,8 @@ public class TaskService {
                 .toList();
     }
 
-    public void deleteTaskById(UUID userId, UUID id) {
-        Task task = taskRepository.findById(id).orElseThrow(() -> new RuntimeException("Task not found!"));
+    public void deleteTaskById(UUID userId, UUID taskId) {
+        Task task = taskRepository.findById(taskId).orElseThrow(() -> new RuntimeException("Task not found!"));
 
         if (!task.getUser().getId().equals(userId)) {
             throw new RuntimeException("You cannot access this task!");
@@ -72,7 +72,7 @@ public class TaskService {
     }
 
     public TaskResponseDto updateTaskById(UUID userId ,UUID taskId, TaskUpdateDto req) {
-        Task taskModel = taskRepository.findByIdAndUserId(userId, taskId)
+        Task taskModel = taskRepository.findByIdAndUserId(taskId, userId)
                 .orElseThrow(() -> new RuntimeException("Task not found!"));
 
         Optional.ofNullable(req.description())
@@ -86,7 +86,7 @@ public class TaskService {
     }
 
     public TaskResponseDto updateStatusTask(UUID userId , UUID taskId, TaskUpdateStatusDto status){
-        Task taskModel = taskRepository.findByIdAndUserId(userId, taskId)
+        Task taskModel = taskRepository.findByIdAndUserId(taskId, userId)
                 .orElseThrow(() -> new RuntimeException("Task not found!"));
 
         if (taskModel.getStatusTask() == Status.DONE) {
