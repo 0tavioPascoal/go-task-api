@@ -16,21 +16,20 @@ import java.util.UUID;
 @Service
 public class TokenService {
 
-    @Value("${app.security.jwt-secret}")
-    private String secret;
-
     private final Algorithm algorithm;
+
+    @Value("${app.security.jwt-expiration-sec}")
+    private long jwtExpirationSec;
 
     public TokenService(@Value("${app.security.jwt-secret}") String secret) {
         this.algorithm = Algorithm.HMAC256(secret);
     }
 
     public String generateToken(User user){
-
         return JWT.create()
                 .withClaim("userId", user.getId().toString())
                 .withSubject(user.getEmail())
-                .withExpiresAt(Instant.now().plusSeconds(86400))
+                .withExpiresAt(Instant.now().plusSeconds(jwtExpirationSec))
                 .withIssuedAt(Instant.now())
                 .sign(algorithm);
     }
@@ -43,8 +42,8 @@ public class TokenService {
 
             return Optional.of(
                     new JWTUserData(
-                    UUID.fromString(decode.getClaim("userId").asString()),
-                    decode.getSubject()
+                            UUID.fromString(decode.getClaim("userId").asString()),
+                            decode.getSubject()
                     )
             );
 

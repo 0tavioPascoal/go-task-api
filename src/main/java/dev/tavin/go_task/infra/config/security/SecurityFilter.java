@@ -5,6 +5,7 @@ import dev.tavin.go_task.infra.repository.UserRepository;
 import dev.tavin.go_task.service.token.TokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie; // <-- Não esqueça deste import
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -32,12 +33,12 @@ public class SecurityFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        String authorization = request.getHeader("Authorization");
+        // 1. Em vez de ler o Header, extraímos o token diretamente do Cookie
+        String token = recoverTokenFromCookie(request);
 
-        if (authorization != null && authorization.startsWith("Bearer ")) {
+        if (token != null) {
 
-            String token = authorization.substring(7);
-
+            // A sua lógica original continua exatamente igual a partir daqui!
             tokenService.validateToken(token).ifPresent(jwtUserData -> {
 
                 if (SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -62,5 +63,18 @@ public class SecurityFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    // 2. Método auxiliar para varrer os cookies da requisição e achar o access_token
+    private String recoverTokenFromCookie(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("access_token".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
     }
 }
