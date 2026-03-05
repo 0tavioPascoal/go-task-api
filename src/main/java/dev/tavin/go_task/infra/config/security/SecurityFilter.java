@@ -33,12 +33,10 @@ public class SecurityFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        // 1. Em vez de ler o Header, extraímos o token diretamente do Cookie
         String token = recoverTokenFromCookie(request);
 
         if (token != null) {
 
-            // A sua lógica original continua exatamente igual a partir daqui!
             tokenService.validateToken(token).ifPresent(jwtUserData -> {
 
                 if (SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -64,8 +62,6 @@ public class SecurityFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
-
-    // 2. Método auxiliar para varrer os cookies da requisição e achar o access_token
     private String recoverTokenFromCookie(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {

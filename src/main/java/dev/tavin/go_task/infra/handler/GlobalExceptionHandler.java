@@ -1,4 +1,4 @@
-package dev.tavin.go_task.infra.exception;
+package dev.tavin.go_task.infra.handler;
 
 import dev.tavin.go_task.infra.dto.error.StandardError;
 import jakarta.servlet.http.HttpServletRequest;
