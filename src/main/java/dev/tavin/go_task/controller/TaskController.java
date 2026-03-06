@@ -7,6 +7,11 @@ import dev.tavin.go_task.infra.dto.task.TaskUpdateStatusDto;
 import dev.tavin.go_task.infra.entity.User;
 import dev.tavin.go_task.service.TaskService;
 import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -31,8 +36,9 @@ public class TaskController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<TaskResponseDto>> getAllTasksByUser(@AuthenticationPrincipal User user){
-        return new ResponseEntity<>(taskService.findMyTasks(user.getId()), HttpStatus.OK);
+    public ResponseEntity<Page<TaskResponseDto>> getAllTasksByUser(@AuthenticationPrincipal User user,
+                            @ParameterObject @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable){
+        return new ResponseEntity<>(taskService.findMyTasks(user.getId(), pageable), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")

@@ -7,6 +7,11 @@ import dev.tavin.go_task.infra.entity.Comment;
 import dev.tavin.go_task.infra.entity.User;
 import dev.tavin.go_task.service.CommentService;
 import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -38,12 +43,13 @@ public class CommentController {
     }
 
     @GetMapping("/task/{taskId}")
-    public ResponseEntity<List<CommentResponseDto>> getAllCommentsForTask(
+    public ResponseEntity<Page<CommentResponseDto>> getAllCommentsForTask(
             @AuthenticationPrincipal User user,
-            @PathVariable UUID taskId
+            @PathVariable UUID taskId,
+            @ParameterObject @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         return new ResponseEntity<>(
-                commentService.getCommentsForTask(user.getId(), taskId),
+                commentService.getCommentsForTask(user.getId(), taskId, pageable),
                 HttpStatus.OK
         );
     }

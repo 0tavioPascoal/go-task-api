@@ -9,6 +9,8 @@ import dev.tavin.go_task.infra.entity.User;
 import dev.tavin.go_task.infra.entity.enums.Status;
 import dev.tavin.go_task.infra.repository.TaskRepository;
 import dev.tavin.go_task.infra.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +42,7 @@ public class TaskService {
         return new TaskResponseDto(task.getTitle(), task.getDescription(), task.getStatusTask(), task.getId());
     }
 
+    @Transactional(readOnly = true)
     public TaskResponseDto getTaskById(UUID userId, UUID taskId) {
         Task task = taskRepository
                 .findByIdAndUserId(taskId, userId)
@@ -49,16 +52,14 @@ public class TaskService {
     }
 
     @Transactional(readOnly = true)
-    public List<TaskResponseDto> findMyTasks(UUID userId) {
-        return taskRepository.findAllTaskByUserId(userId)
-                .stream()
+    public Page<TaskResponseDto> findMyTasks(UUID userId, Pageable pageable) {
+        return taskRepository.findAllTaskByUserId(userId, pageable)
                 .map(task -> new TaskResponseDto(
                         task.getTitle(),
                         task.getDescription(),
                         task.getStatusTask(),
                         task.getId()
-                ))
-                .toList();
+                ));
     }
 
     public void deleteTaskById(UUID userId, UUID taskId) {

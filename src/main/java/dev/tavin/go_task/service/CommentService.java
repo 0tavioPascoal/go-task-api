@@ -7,7 +7,10 @@ import dev.tavin.go_task.infra.entity.Comment;
 import dev.tavin.go_task.infra.entity.Task;
 import dev.tavin.go_task.infra.repository.CommentRepository;
 import dev.tavin.go_task.infra.repository.TaskRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -45,21 +48,20 @@ public class CommentService {
         );
     }
 
-    public List<CommentResponseDto> getCommentsForTask(UUID userId, UUID taskId) {
+    @Transactional(readOnly = true)
+    public Page<CommentResponseDto> getCommentsForTask(UUID userId, UUID taskId, Pageable pageable) {
 
         Task task = taskRepository
                 .findByIdAndUserId(taskId, userId)
                 .orElseThrow(() -> new RuntimeException("Task not found!"));
 
-        return commentRepository.findAllByTask(task)
-                .stream()
+        return commentRepository.findAllByTask(task, pageable)
                 .map(comment -> new CommentResponseDto(
                         comment.getComment(),
                         comment.getId(),
-                        comment.getTask().getId(),
+                        taskId,
                         comment.getAuthor().getId()
-                ))
-                .toList();
+                ));
     }
 
     public void deleteComment(UUID userId, UUID commentId) {
@@ -71,6 +73,7 @@ public class CommentService {
         commentRepository.delete(comment);
     }
 
+    @Transactional(readOnly = true)
     public CommentResponseDto findById(UUID userId, UUID commentId) {
 
         Comment comment = commentRepository
