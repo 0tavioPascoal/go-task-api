@@ -1,1 +1,1 @@
-# go-task-api
+# kore-api
